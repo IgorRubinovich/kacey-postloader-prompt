@@ -1,0 +1,129 @@
+<dom-module id="kacey-postloader-prompt">
+    <style>
+        :host{
+            max-width: 360px;
+        }
+
+        .custom-field input{
+            border: 0;
+            border-bottom: 1px solid #eaeaea;
+            padding: 5px 0;
+        }
+
+      .custom-field .ir-select{
+            padding-right: 0;
+        }
+		
+		dialog : {
+			widgh : 80%
+		}
+		
+		#valholder {
+			padding : 5px;
+			border : 3px dashed grey;
+		}
+    </style>
+    <template>
+		<paper-dialog with-backdrop id="dialog">
+			<h2>Вставить ссылку с сайта</h2>
+			<div>
+				<h3>искать публикацию</h3>
+				<ir-select
+						id="postSearch"
+						placeholder="искать публикации"
+						data-source="http://localhost:5000/blog/json/where"
+						query-by-label="q=%7B%22defaultDisplay%22%3A%22.*[query].*%22%7D&opts=%7B%22limit%22%3A5%2C%22nocache%22%3Atrue%7D"
+						max-suggestions="5"
+						min-length="1"
+						value-path="slug"
+						label-path="title"
+						name="mySelectBox"
+						prevent-default="true"
+						max-items="1"
+						class="custom-field"
+						>
+				</ir-select>
+				<h3>искать страницу</h3>
+				<ir-select
+						id="pageSearch"
+						placeholder="искать страницы"
+						data-source="/page/json/where"
+						query-by-label="q=%7B%22defaultDisplay%22%3A%22.*[query].*%22%7D&opts=%7B%22limit%22%3A5%2C%22nocache%22%3Atrue%7D"
+						max-suggestions="5"
+						min-length="1"
+						value-path="slug"
+						label-path="title"
+						name="mySelectBox"
+						prevent-default="true"
+						max-items="1"
+						class="custom-field"
+						>
+				</ir-select>
+			</div>
+			<div class="buttons">
+				<span id='valholder'>ничего не выбрано</span>
+				<paper-button id="okButton" on-click='ok'>Вставить</paper-button>
+				<paper-button on-click='cancel'>Cancel</paper-button>
+			</div>
+		</paper-dialog>
+    </template>
+    
+    <script>
+        (function() {
+            Polymer({
+                is: 'kacey-postloader-prompt',
+				properties : { 
+					value : {
+						observer : "preview"
+					} 
+				},
+                attached : function(){
+					var that = this;
+					okButton.visibility = 'hidden';
+					valholder.addEventListener('click', function(e) { e.preventDefault() });
+					
+                    this.$.postSearch.addEventListener('item-added', function (ev) {
+						that.set('value', buildLink(ev.detail.item.title, "/" + ev.detail.item.id + "/" + ev.detail.item.slug + "/" ));
+						this.getChildItems().forEach(function(item) { item.close(); });
+                    });
+                    this.$.pageSearch.addEventListener('item-added', function (ev) {
+						that.set('value', buildLink(ev.detail.item.title, ev.detail.item.slug + "/"));
+						this.getChildItems().forEach(function(item) { item.close(); });
+                    });					
+                },
+				
+				preview : function() {
+					if(this.value) okButton.visibility = 'hidden';
+					this.$.valholder.innerHTML = this.value || "ничего не выбрано"
+				},
+				
+				ok : function() {
+					this.promptCallback(this.value);
+					delete this.promptCallback;
+					this.$.dialog.close();
+				},
+				
+				cancel : function() {
+					this.$.dialog.close();
+				},
+				
+				prompt : function(promptCallback) {
+					this.promptCallback = promptCallback;
+					this.$.dialog.open();
+				}
+				
+				
+            });
+			
+			function buildLink(title, href) {
+				return "<a href='" + href + "'>" + title + "</a>";
+			}
+
+        })();
+
+    </script>
+</dom-module>
+
+
+
+
