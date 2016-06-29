@@ -1,29 +1,35 @@
 <dom-module id="kacey-postloader-prompt">
-    <style>
-        :host{
-            max-width: 360px;
-        }
 
-        .custom-field input{
-            border: 0;
-            border-bottom: 1px solid #eaeaea;
-            padding: 5px 0;
-        }
-
-      .custom-field .ir-select{
-            padding-right: 0;
-        }
-		
-		dialog : {
-			widgh : 80%
-		}
-		
-		#valholder {
-			padding : 5px;
-			border : 3px dashed grey;
-		}
-    </style>
     <template>
+		<style>
+			:host{
+				max-width: 360px;
+			}
+
+			.custom-field input{
+				border: 0;
+				border-bottom: 1px solid #eaeaea;
+				padding: 5px 0;
+			}
+
+		  .custom-field .ir-select{
+				padding-right: 0;
+			}
+			
+			#dialog : {
+			   position:fixed;
+			   min-width:80%;
+			   max-width:80%;
+			}
+			
+			#valholder {
+				padding : 5px;
+				border : 1px dashed grey;
+				position : relative;
+				width : 400px;
+				margin : 5px;
+			}
+		</style>
 		<paper-dialog with-backdrop id="dialog">
 			<h2>Вставить ссылку с сайта</h2>
 			<div>
@@ -79,7 +85,8 @@
 				},
                 attached : function(){
 					var that = this;
-					okButton.visibility = 'hidden';
+					okButton.style.visibility = 'hidden';
+
 					valholder.addEventListener('click', function(e) { e.preventDefault() });
 					
                     this.$.postSearch.addEventListener('item-added', function (ev) {
@@ -93,7 +100,7 @@
                 },
 				
 				preview : function() {
-					if(this.value) okButton.visibility = 'hidden';
+					okButton.style.visibility = this.value ? 'visible' : 'hidden';
 					this.$.valholder.innerHTML = this.value || "ничего не выбрано"
 				},
 				
@@ -108,6 +115,7 @@
 				},
 				
 				prompt : function(promptCallback) {
+					this.set('value', '');
 					this.promptCallback = promptCallback;
 					this.$.dialog.open();
 				}
